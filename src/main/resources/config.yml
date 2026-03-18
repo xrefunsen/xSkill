@@ -27,7 +27,7 @@ swords:
         trigger: SHIFT_RIGHT_CLICK
         type: AOE_FREEZE
         cooldownSeconds: 20
-        durationSeconds: 3
+        durationSeconds: 6
         radius: 6.0
         applyPotionSlow: true
         slowAmplifier: 10

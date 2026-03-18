@@ -40,7 +40,7 @@ public final class AbilityExecutor {
         String cdKey = sword.id() + ":" + ability.id();
         long left = plugin.cooldowns().remainingMs(player.getUniqueId(), cdKey, now);
         if (left > 0) {
-            player.sendMessage(Text.color("&cCooldown: " + Math.ceil(left / 1000.0) + "s"));
+            player.sendActionBar(Text.component("&cCooldown: &f" + (int) Math.ceil(left / 1000.0) + "s"));
             return false;
         }
 
