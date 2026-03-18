@@ -11,6 +11,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 import java.util.Locale;
@@ -54,6 +56,8 @@ public final class AbilityExecutor {
             case "BLINK" -> blink(player, s);
             case "AOE_KNOCKUP" -> slam(player, s);
             case "AOE_LIGHTNING" -> lightning(player, s);
+            case "VFX_RING" -> vfxRing(player, s);
+            case "VFX_WAVE" -> vfxWave(plugin, player, s);
             default -> switch (ability.id().toLowerCase()) {
                 case "webfreeze" -> webFreeze(plugin, player, s);
                 case "heal" -> heal(player, s);
@@ -73,6 +77,118 @@ public final class AbilityExecutor {
         double xp = plugin.getConfig().getDouble("leveling.sources.abilityUse", 5.0);
         plugin.levels().addXp(player, xp);
         return true;
+    }
+
+    private static boolean vfxRing(Player player, ConfigurationSection s) {
+        double radius = Cfg.d(s, "radius", 4.5);
+        int points = Math.max(8, Cfg.i(s, "points", 48));
+        double yOffset = Cfg.d(s, "yOffset", 0.1);
+        Particle particle = Cfg.particle(s, "particle", Particle.DUST);
+        double extra = Cfg.d(s, "extra", 0.0);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        Location base = center.clone().add(0, yOffset, 0);
+        Object data = particleData(s, particle);
+        for (int i = 0; i < points; i++) {
+            double a = (Math.PI * 2.0) * (i / (double) points);
+            double x = Math.cos(a) * radius;
+            double z = Math.sin(a) * radius;
+            Location p = base.clone().add(x, 0, z);
+            spawn(world, particle, p, 1, 0, 0, 0, extra, data);
+        }
+        Sound sound = Cfg.sound(s, "sound", null);
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        return true;
+    }
+
+    private static boolean vfxWave(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double maxRadius = Cfg.d(s, "maxRadius", 6.0);
+        double step = Math.max(0.2, Cfg.d(s, "step", 0.6));
+        int points = Math.max(8, Cfg.i(s, "points", 40));
+        double yOffset = Cfg.d(s, "yOffset", 0.1);
+        int intervalTicks = Math.max(1, Cfg.i(s, "intervalTicks", 1));
+        Particle particle = Cfg.particle(s, "particle", Particle.DUST);
+        double extra = Cfg.d(s, "extra", 0.0);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        Location base = center.clone().add(0, yOffset, 0);
+        Object data = particleData(s, particle);
+        Sound sound = Cfg.sound(s, "sound", null);
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+
+        new BukkitRunnable() {
+            double r = step;
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                if (r > maxRadius) {
+                    cancel();
+                    return;
+                }
+                for (int i = 0; i < points; i++) {
+                    double a = (Math.PI * 2.0) * (i / (double) points);
+                    double x = Math.cos(a) * r;
+                    double z = Math.sin(a) * r;
+                    Location p = base.clone().add(x, 0, z);
+                    spawn(world, particle, p, 1, 0, 0, 0, extra, data);
+                }
+                r += step;
+            }
+        }.runTaskTimer(plugin, 0L, intervalTicks);
+
+        return true;
+    }
+
+    private static Object particleData(ConfigurationSection s, Particle particle) {
+        if (particle == Particle.DUST) {
+            String hex = Cfg.str(s, "color", "#FF0000");
+            float size = (float) Math.max(0.1, Cfg.d(s, "size", 1.6));
+            Color c = parseColor(hex);
+            try {
+                return new Particle.DustOptions(c, size);
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+        if (particle == Particle.BLOCK || particle == Particle.BLOCK_MARKER) {
+            Material m = Cfg.material(s, "particleData", Material.REDSTONE_BLOCK);
+            try {
+                return m.createBlockData();
+            } catch (Exception ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private static Color parseColor(String hex) {
+        if (hex == null) return Color.fromRGB(255, 0, 0);
+        String h = hex.trim();
+        if (h.startsWith("#")) h = h.substring(1);
+        try {
+            int v = Integer.parseInt(h, 16);
+            int r = (v >> 16) & 255;
+            int g = (v >> 8) & 255;
+            int b = v & 255;
+            return Color.fromRGB(r, g, b);
+        } catch (Exception ignored) {
+            return Color.fromRGB(255, 0, 0);
+        }
+    }
+
+    private static void spawn(World world, Particle particle, Location loc, int count, double ox, double oy, double oz, double extra, Object data) {
+        try {
+            if (data != null) world.spawnParticle(particle, loc, count, ox, oy, oz, extra, data);
+            else world.spawnParticle(particle, loc, count, ox, oy, oz, extra);
+        } catch (Exception ignored) {
+            world.spawnParticle(particle, loc, count, ox, oy, oz, extra);
+        }
     }
 
     private static boolean webFreeze(XSkillPlugin plugin, Player player, ConfigurationSection s) {

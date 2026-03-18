@@ -201,6 +201,32 @@ swords:
         radius: 5.0
         knockUp: 0.6
         sound: ENTITY_IRON_GOLEM_ATTACK
+      redstoneRing:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: VFX_RING
+        cooldownSeconds: 6
+        radius: 5.5
+        points: 60
+        particle: DUST
+        color: "#FF0000"
+        size: 1.8
+        yOffset: 0.1
+        sound: BLOCK_STONE_HIT
+      redstoneWave:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        type: VFX_WAVE
+        cooldownSeconds: 12
+        maxRadius: 7.0
+        step: 0.7
+        points: 56
+        intervalTicks: 1
+        particle: DUST
+        color: "#FF0000"
+        size: 1.6
+        yOffset: 0.1
+        sound: BLOCK_NOTE_BLOCK_BASEDRUM
       fortify:
         enabled: true
         trigger: RIGHT_CLICK
