@@ -1,0 +1,21 @@
+name: xSkill
+version: 1.0.0
+main: dev.xskill.xskill.XSkillPlugin
+api-version: "1.21"
+commands:
+  xskill:
+    usage: "/xskill <give|reload|stats|level>"
+    description: "xSkill commands"
+permissions:
+  xskill.admin:
+    default: op
+    children:
+      xskill.give: true
+      xskill.reload: true
+      xskill.stats.others: true
+  xskill.give:
+    default: op
+  xskill.reload:
+    default: op
+  xskill.stats.others:
+    default: op

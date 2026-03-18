@@ -1,0 +1,198 @@
+leveling:
+  enabled: true
+  maxLevel: 100
+  xp:
+    baseToNext: 100
+    perLevelAdd: 25
+  sources:
+    hit: 1.0
+    kill: 10.0
+    abilityUse: 5.0
+
+swords:
+  spider:
+    enabled: true
+    material: DIAMOND_SWORD
+    name: "&aÖrümcek Kılıcı"
+    lore:
+      - "&7Shift + Sağ Tık: Ağ Dondurması"
+    customModelData: 0
+    requirements:
+      minLevel: 1
+    combat:
+      damageBonus: 0.0
+    abilities:
+      webFreeze:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 20
+        durationSeconds: 3
+        radius: 6.0
+        applyPotionSlow: true
+        slowAmplifier: 10
+        particle: BLOCK_CRACK
+        particleData: COBWEB
+        sound: BLOCK_WEB_PLACE
+
+  deadpool:
+    enabled: true
+    material: NETHERITE_SWORD
+    name: "&cDeadpool Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: İyileşme" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      heal:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 25
+        healHearts: 6.0
+        sound: ENTITY_PLAYER_LEVELUP
+
+  wolverine:
+    enabled: true
+    material: NETHERITE_SWORD
+    name: "&eWolverine Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Rejenerasyon" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      regen:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 30
+        durationSeconds: 6
+        amplifier: 1
+        sound: ENTITY_IRON_GOLEM_REPAIR
+
+  loki:
+    enabled: true
+    material: DIAMOND_SWORD
+    name: "&2Loki Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Kısa Teleport" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      blink:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 18
+        maxDistance: 10.0
+        sound: ENTITY_ENDERMAN_TELEPORT
+
+  nyan_cat:
+    enabled: true
+    material: DIAMOND_SWORD
+    name: "&dNyan Cat Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Hız" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      speed:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 20
+        durationSeconds: 8
+        amplifier: 1
+        sound: ENTITY_CAT_PURR
+
+  garfield:
+    enabled: true
+    material: IRON_SWORD
+    name: "&6Garfield Kılıcı"
+    lore: [ "&7Vuruş: Hedefi yavaşlatır" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat:
+      damageBonus: 0.0
+      onHit:
+        enabled: true
+        potion: SLOWNESS
+        durationSeconds: 2
+        amplifier: 1
+
+  bingus:
+    enabled: true
+    material: IRON_SWORD
+    name: "&fBingus Kılıcı"
+    lore: [ "&7Vuruş: Geri itme" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat:
+      damageBonus: 0.0
+      knockback:
+        enabled: true
+        strength: 1.2
+
+  golem:
+    enabled: true
+    material: DIAMOND_SWORD
+    name: "&7Golem Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Şok Dalgası" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      slam:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 22
+        radius: 5.0
+        knockUp: 0.6
+        sound: ENTITY_IRON_GOLEM_ATTACK
+
+  wither:
+    enabled: true
+    material: NETHERITE_SWORD
+    name: "&8Wither Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Wither Aura" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      aura:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 28
+        durationSeconds: 6
+        radius: 5.0
+        amplifier: 1
+        sound: ENTITY_WITHER_SPAWN
+
+  warden:
+    enabled: true
+    material: NETHERITE_SWORD
+    name: "&3Warden Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Karanlık" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      darkness:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 26
+        durationSeconds: 4
+        radius: 6.0
+        sound: ENTITY_WARDEN_SONIC_BOOM
+
+  herobrine:
+    enabled: true
+    material: DIAMOND_SWORD
+    name: "&fHerobrine Kılıcı"
+    lore: [ "&7Shift + Sağ Tık: Yıldırım" ]
+    customModelData: 0
+    requirements: { minLevel: 1 }
+    combat: { damageBonus: 0.0 }
+    abilities:
+      lightning:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        cooldownSeconds: 24
+        radius: 8.0
+        strikes: 2
+        sound: ENTITY_LIGHTNING_BOLT_THUNDER
