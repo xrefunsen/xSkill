@@ -17,6 +17,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.util.Vector;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -51,6 +52,14 @@ public final class AbilityExecutor {
         ok = switch (type) {
             case "AOE_FREEZE" -> webFreeze(plugin, player, s);
             case "AOE_POTION" -> aoePotion(player, s);
+            case "AOE_DAMAGE" -> aoeDamage(plugin, player, s);
+            case "CONE_DAMAGE" -> coneDamage(plugin, player, s);
+            case "PULL_PUSH" -> pullPush(plugin, player, s);
+            case "DOT" -> dot(plugin, player, s);
+            case "LIFESTEAL" -> lifesteal(plugin, player, s);
+            case "SHIELD" -> shield(plugin, player, s);
+            case "RAY" -> ray(plugin, player, s);
+            case "CHAIN_LIGHTNING" -> chainLightning(plugin, player, s);
             case "SELF_POTION" -> selfPotion(player, s);
             case "SELF_HEAL" -> heal(player, s);
             case "BLINK" -> blink(player, s);
@@ -58,6 +67,9 @@ public final class AbilityExecutor {
             case "AOE_LIGHTNING" -> lightning(player, s);
             case "VFX_RING" -> vfxRing(player, s);
             case "VFX_WAVE" -> vfxWave(plugin, player, s);
+            case "VFX_SPIRAL" -> vfxSpiral(plugin, player, s);
+            case "VFX_COLUMN" -> vfxColumn(plugin, player, s);
+            case "VFX_CASTBAR" -> vfxCastbar(plugin, player, s);
             default -> switch (ability.id().toLowerCase()) {
                 case "webfreeze" -> webFreeze(plugin, player, s);
                 case "heal" -> heal(player, s);
@@ -73,7 +85,8 @@ public final class AbilityExecutor {
         };
 
         if (!ok) return false;
-        plugin.cooldowns().set(player.getUniqueId(), cdKey, cooldownSeconds * 1000L, now);
+        double cdScaled = plugin.levels().scale(player, "cooldownSeconds", cooldownSeconds);
+        plugin.cooldowns().set(player.getUniqueId(), cdKey, (long) (Math.max(0.0, cdScaled) * 1000.0), now);
         double xp = plugin.getConfig().getDouble("leveling.sources.abilityUse", 5.0);
         plugin.levels().addXp(player, xp);
         return true;
@@ -141,6 +154,130 @@ public final class AbilityExecutor {
                 r += step;
             }
         }.runTaskTimer(plugin, 0L, intervalTicks);
+
+        return true;
+    }
+
+    private static boolean vfxSpiral(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        int durationTicks = Math.max(1, Cfg.i(s, "durationTicks", 40));
+        double radius = Cfg.d(s, "radius", 2.5);
+        double height = Cfg.d(s, "height", 2.2);
+        double yOffset = Cfg.d(s, "yOffset", 0.2);
+        int pointsPerTick = Math.max(1, Cfg.i(s, "pointsPerTick", 2));
+        Particle particle = Cfg.particle(s, "particle", Particle.DUST);
+        double extra = Cfg.d(s, "extra", 0.0);
+        Object data = particleData(s, particle);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Location base = player.getLocation();
+        World world = base.getWorld();
+        if (world == null) return false;
+        if (sound != null) world.playSound(base, sound, 1.0f, 1.0f);
+
+        new BukkitRunnable() {
+            int t = 0;
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                if (t >= durationTicks) {
+                    cancel();
+                    return;
+                }
+                Location c = player.getLocation().add(0, yOffset, 0);
+                for (int i = 0; i < pointsPerTick; i++) {
+                    double a = (t * 0.35) + (i * (Math.PI * 2 / pointsPerTick));
+                    double x = Math.cos(a) * radius;
+                    double z = Math.sin(a) * radius;
+                    double y = (t / (double) durationTicks) * height;
+                    Location p = c.clone().add(x, y, z);
+                    spawn(world, particle, p, 1, 0, 0, 0, extra, data);
+                }
+                t++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+
+        return true;
+    }
+
+    private static boolean vfxColumn(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        int durationTicks = Math.max(1, Cfg.i(s, "durationTicks", 30));
+        double height = Cfg.d(s, "height", 4.0);
+        double radius = Cfg.d(s, "radius", 0.6);
+        double yOffset = Cfg.d(s, "yOffset", 0.1);
+        int points = Math.max(6, Cfg.i(s, "points", 16));
+        Particle particle = Cfg.particle(s, "particle", Particle.DUST);
+        double extra = Cfg.d(s, "extra", 0.0);
+        Object data = particleData(s, particle);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Location base = player.getLocation();
+        World world = base.getWorld();
+        if (world == null) return false;
+        if (sound != null) world.playSound(base, sound, 1.0f, 1.0f);
+
+        new BukkitRunnable() {
+            int t = 0;
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                if (t >= durationTicks) {
+                    cancel();
+                    return;
+                }
+                Location c = player.getLocation().add(0, yOffset, 0);
+                for (int i = 0; i < points; i++) {
+                    double a = (Math.PI * 2.0) * (i / (double) points);
+                    double x = Math.cos(a) * radius;
+                    double z = Math.sin(a) * radius;
+                    for (double y = 0; y <= height; y += 0.5) {
+                        Location p = c.clone().add(x, y, z);
+                        spawn(world, particle, p, 1, 0, 0, 0, extra, data);
+                    }
+                }
+                t++;
+            }
+        }.runTaskTimer(plugin, 0L, 2L);
+
+        return true;
+    }
+
+    private static boolean vfxCastbar(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        int durationTicks = Math.max(1, Cfg.i(s, "durationTicks", 30));
+        String title = Cfg.str(s, "title", "&6Yetenek");
+        String fill = Cfg.str(s, "fill", "&a■");
+        String empty = Cfg.str(s, "empty", "&7■");
+        int width = Math.max(5, Cfg.i(s, "width", 20));
+        Sound soundStart = Cfg.sound(s, "soundStart", null);
+        Sound soundEnd = Cfg.sound(s, "soundEnd", null);
+        if (soundStart != null) player.getWorld().playSound(player.getLocation(), soundStart, 1.0f, 1.0f);
+
+        new BukkitRunnable() {
+            int t = 0;
+
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                double pct = Math.min(1.0, t / (double) durationTicks);
+                int filled = (int) Math.round(width * pct);
+                String bar = fill.repeat(Math.max(0, filled)) + empty.repeat(Math.max(0, width - filled));
+                player.sendActionBar(Text.component(title + " " + bar));
+                if (t >= durationTicks) {
+                    if (soundEnd != null) player.getWorld().playSound(player.getLocation(), soundEnd, 1.0f, 1.0f);
+                    cancel();
+                    return;
+                }
+                t++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
 
         return true;
     }
@@ -261,6 +398,254 @@ public final class AbilityExecutor {
         }
         if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
         if (particle != null) world.spawnParticle(particle, center, 40, radius / 3.0, 0.8, radius / 3.0, 0.02);
+        return hit;
+    }
+
+    private static boolean aoeDamage(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double radius = plugin.levels().scale(player, "radius", Cfg.d(s, "radius", 5.0));
+        double damage = plugin.levels().scale(player, "damage", Cfg.d(s, "damage", 4.0));
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Particle particle = Cfg.particle(s, "particle", null);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        boolean hit = false;
+        for (Entity e : player.getNearbyEntities(radius, radius, radius)) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            le.damage(damage, player);
+            hit = true;
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        if (particle != null) world.spawnParticle(particle, center, 40, radius / 3.0, 0.6, radius / 3.0, 0.02);
+        return hit;
+    }
+
+    private static boolean coneDamage(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double radius = plugin.levels().scale(player, "radius", Cfg.d(s, "radius", 5.0));
+        double damage = plugin.levels().scale(player, "damage", Cfg.d(s, "damage", 4.0));
+        double angleDeg = Cfg.d(s, "angleDegrees", 70.0);
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Particle particle = Cfg.particle(s, "particle", null);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        Vector forward = center.getDirection().setY(0).normalize();
+        double cos = Math.cos(Math.toRadians(angleDeg / 2.0));
+        boolean hit = false;
+        for (Entity e : player.getNearbyEntities(radius, radius, radius)) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            Vector to = le.getLocation().toVector().subtract(center.toVector()).setY(0);
+            if (to.lengthSquared() <= 0.01) continue;
+            Vector dir = to.clone().normalize();
+            if (forward.dot(dir) < cos) continue;
+            le.damage(damage, player);
+            hit = true;
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        if (particle != null) world.spawnParticle(particle, center, 35, 0.3, 0.2, 0.3, 0.01);
+        return hit;
+    }
+
+    private static boolean pullPush(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double radius = plugin.levels().scale(player, "radius", Cfg.d(s, "radius", 6.0));
+        double strength = plugin.levels().scale(player, "strength", Cfg.d(s, "strength", 1.0));
+        boolean pull = Cfg.b(s, "pull", true);
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Particle particle = Cfg.particle(s, "particle", null);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        boolean hit = false;
+        for (Entity e : player.getNearbyEntities(radius, radius, radius)) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            Vector dir = le.getLocation().toVector().subtract(center.toVector());
+            if (dir.lengthSquared() < 0.01) continue;
+            Vector v = dir.normalize().multiply(strength);
+            if (pull) v.multiply(-1);
+            v.setY(Math.max(-0.1, Math.min(0.35, v.getY())));
+            le.setVelocity(le.getVelocity().add(v));
+            hit = true;
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        if (particle != null) world.spawnParticle(particle, center, 40, radius / 3.0, 0.6, radius / 3.0, 0.02);
+        return hit;
+    }
+
+    private static boolean dot(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double radius = Cfg.d(s, "radius", 6.0);
+        int durationSeconds = Cfg.i(s, "durationSeconds", 6);
+        double damagePerTick = Cfg.d(s, "damagePerSecond", 1.0) / 2.0;
+        int periodTicks = Math.max(1, Cfg.i(s, "periodTicks", 10));
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Particle particle = Cfg.particle(s, "particle", null);
+        Sound sound = Cfg.sound(s, "sound", null);
+        PotionEffectType overlay = Cfg.potion(s, "potion", null);
+        int overlayAmp = Cfg.i(s, "amplifier", 0);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        List<Entity> targets = player.getNearbyEntities(radius, radius, radius);
+        boolean any = false;
+        for (Entity e : targets) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            if (overlay != null) le.addPotionEffect(new PotionEffect(overlay, durationSeconds * 20, overlayAmp, true, true, true));
+            any = true;
+            new BukkitRunnable() {
+                int ticks = 0;
+
+                @Override
+                public void run() {
+                    if (le.isDead() || !le.isValid()) {
+                        cancel();
+                        return;
+                    }
+                    int maxTicks = durationSeconds * 20;
+                    if (ticks >= maxTicks) {
+                        cancel();
+                        return;
+                    }
+                    le.damage(damagePerTick, player);
+                    if (particle != null) world.spawnParticle(particle, le.getLocation().add(0, 1.0, 0), 6, 0.25, 0.25, 0.25, 0.01);
+                    ticks += periodTicks;
+                }
+            }.runTaskTimer(plugin, 0L, periodTicks);
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        return any;
+    }
+
+    private static boolean lifesteal(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double radius = plugin.levels().scale(player, "radius", Cfg.d(s, "radius", 5.0));
+        double damage = plugin.levels().scale(player, "damage", Cfg.d(s, "damage", 4.0));
+        double stealPct = Cfg.d(s, "stealPercent", 30.0) / 100.0;
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Particle particle = Cfg.particle(s, "particle", null);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        boolean hit = false;
+        double healed = 0.0;
+        for (Entity e : player.getNearbyEntities(radius, radius, radius)) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            le.damage(damage, player);
+            healed += damage * stealPct;
+            hit = true;
+            if (particle != null) world.spawnParticle(particle, le.getLocation().add(0, 1.0, 0), 10, 0.25, 0.25, 0.25, 0.02);
+        }
+        if (hit && healed > 0) {
+            double max = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
+            player.setHealth(Math.min(max, player.getHealth() + healed));
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        return hit;
+    }
+
+    private static boolean shield(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        int durationSeconds = (int) Math.round(plugin.levels().scale(player, "durationSeconds", Cfg.i(s, "durationSeconds", 6)));
+        int amplifier = Cfg.i(s, "amplifier", 1);
+        Sound sound = Cfg.sound(s, "sound", null);
+        player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, durationSeconds * 20, amplifier, true, true, true));
+        if (sound != null) player.getWorld().playSound(player.getLocation(), sound, 1.0f, 1.0f);
+        return true;
+    }
+
+    private static boolean ray(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double range = plugin.levels().scale(player, "range", Cfg.d(s, "range", 12.0));
+        double damage = plugin.levels().scale(player, "damage", Cfg.d(s, "damage", 6.0));
+        Particle particle = Cfg.particle(s, "particle", null);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Location start = player.getEyeLocation();
+        World world = start.getWorld();
+        if (world == null) return false;
+        var res = world.rayTraceEntities(start, start.getDirection(), range, 0.3, e -> e instanceof LivingEntity && !(e instanceof ArmorStand) && !e.getUniqueId().equals(player.getUniqueId()));
+        if (particle != null) {
+            for (double d = 0; d < range; d += 0.5) {
+                Location p = start.clone().add(start.getDirection().normalize().multiply(d));
+                world.spawnParticle(particle, p, 1, 0, 0, 0, 0);
+            }
+        }
+        if (sound != null) world.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+        if (res == null || res.getHitEntity() == null) return false;
+        if (res.getHitEntity() instanceof LivingEntity le) {
+            le.damage(damage, player);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean chainLightning(XSkillPlugin plugin, Player player, ConfigurationSection s) {
+        double range = plugin.levels().scale(player, "range", Cfg.d(s, "range", 10.0));
+        int chains = Math.max(1, Cfg.i(s, "chains", 3));
+        double damage = plugin.levels().scale(player, "damage", Cfg.d(s, "damage", 4.0));
+        double chainRadius = plugin.levels().scale(player, "radius", Cfg.d(s, "chainRadius", 6.0));
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Location start = player.getEyeLocation();
+        World world = start.getWorld();
+        if (world == null) return false;
+
+        var res = world.rayTraceEntities(start, start.getDirection(), range, 0.4, e -> e instanceof LivingEntity && !(e instanceof ArmorStand) && !e.getUniqueId().equals(player.getUniqueId()));
+        if (res == null || res.getHitEntity() == null) return false;
+        if (!(res.getHitEntity() instanceof LivingEntity current)) return false;
+
+        boolean hit = false;
+        java.util.Set<java.util.UUID> hitIds = new java.util.HashSet<>();
+        for (int i = 0; i < chains; i++) {
+            if (current == null || current.isDead() || !current.isValid()) break;
+            if (current instanceof Player && !affectPlayers) break;
+            if (!(current instanceof Player) && !affectMobs) break;
+            hitIds.add(current.getUniqueId());
+            world.strikeLightningEffect(current.getLocation());
+            current.damage(damage, player);
+            hit = true;
+            LivingEntity next = null;
+            double best = Double.MAX_VALUE;
+            for (Entity e : current.getNearbyEntities(chainRadius, chainRadius, chainRadius)) {
+                if (!(e instanceof LivingEntity le)) continue;
+                if (e instanceof ArmorStand) continue;
+                if (hitIds.contains(e.getUniqueId())) continue;
+                if (e.getUniqueId().equals(player.getUniqueId())) continue;
+                if (e instanceof Player && !affectPlayers) continue;
+                if (!(e instanceof Player) && !affectMobs) continue;
+                double ds = e.getLocation().distanceSquared(current.getLocation());
+                if (ds < best) {
+                    best = ds;
+                    next = le;
+                }
+            }
+            current = next;
+        }
+        if (sound != null) world.playSound(player.getLocation(), sound, 1.0f, 1.0f);
         return hit;
     }
 

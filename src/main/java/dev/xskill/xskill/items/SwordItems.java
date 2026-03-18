@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class SwordItems {
     private SwordItems() {
@@ -27,6 +28,7 @@ public final class SwordItems {
         if (def.customModelData() > 0) meta.setCustomModelData(def.customModelData());
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
         meta.getPersistentDataContainer().set(Keys.SWORD_ID, PersistentDataType.STRING, def.id());
+        meta.getPersistentDataContainer().set(Keys.ITEM_UUID, PersistentDataType.STRING, UUID.randomUUID().toString());
         item.setItemMeta(meta);
         return item;
     }
@@ -36,6 +38,10 @@ public final class SwordItems {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
         return meta.getPersistentDataContainer().get(Keys.SWORD_ID, PersistentDataType.STRING);
+    }
+
+    public static boolean isSpecial(ItemStack item) {
+        return getSwordId(item) != null;
     }
 }
 

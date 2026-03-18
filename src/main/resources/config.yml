@@ -8,8 +8,40 @@ leveling:
     hit: 1.0
     kill: 10.0
     abilityUse: 5.0
+  scaling:
+    cooldownSeconds:
+      perLevel: -0.05
+      min: 0
+      max: 999999
+    radius:
+      perLevel: 0.02
+      min: 0.5
+      max: 20.0
+    damage:
+      perLevel: 0.03
+      min: 0.0
+      max: 100.0
+    strength:
+      perLevel: 0.01
+      min: 0.0
+      max: 5.0
+    range:
+      perLevel: 0.02
+      min: 1.0
+      max: 40.0
+    durationSeconds:
+      perLevel: 0.02
+      min: 1
+      max: 120
 
 swords:
+  settings:
+    disabledWorlds: [ ]
+    combatTag:
+      enabled: false
+      seconds: 10
+      blockAbilitiesWhileTagged: false
+
   spider:
     enabled: true
     material: DIAMOND_SWORD
@@ -51,6 +83,19 @@ swords:
           mobs: true
         particle: SPELL_MOB
         sound: ENTITY_SPIDER_AMBIENT
+      webPull:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: PULL_PUSH
+        cooldownSeconds: 16
+        radius: 7.0
+        pull: true
+        strength: 0.8
+        targets:
+          players: true
+          mobs: true
+        particle: CRIT
+        sound: ENTITY_FISHING_BOBBER_RETRIEVE
 
   deadpool:
     enabled: true
@@ -129,6 +174,18 @@ swords:
         potion: INVISIBILITY
         amplifier: 0
         sound: ENTITY_ILLUSIONER_MIRROR_MOVE
+      illusionSpiral:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: VFX_SPIRAL
+        cooldownSeconds: 8
+        durationTicks: 45
+        radius: 2.2
+        height: 2.5
+        particle: DUST
+        color: "#00FF88"
+        size: 1.4
+        sound: ENTITY_ILLUSIONER_CAST_SPELL
 
   nyan_cat:
     enabled: true
@@ -236,6 +293,18 @@ swords:
         potion: DAMAGE_RESISTANCE
         amplifier: 0
         sound: ENTITY_IRON_GOLEM_REPAIR
+      castbarTest:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: VFX_CASTBAR
+        cooldownSeconds: 6
+        durationTicks: 30
+        title: "&6Güç Toplanıyor"
+        width: 18
+        fill: "&c■"
+        empty: "&7■"
+        soundStart: BLOCK_BEACON_POWER_SELECT
+        soundEnd: ENTITY_PLAYER_LEVELUP
 
   wither:
     enabled: true
@@ -268,6 +337,19 @@ swords:
           mobs: true
         particle: SMOKE_LARGE
         sound: ENTITY_WITHER_AMBIENT
+      lifeDrain:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        type: LIFESTEAL
+        cooldownSeconds: 26
+        radius: 5.0
+        damage: 4.0
+        stealPercent: 35.0
+        targets:
+          players: true
+          mobs: true
+        particle: DAMAGE_INDICATOR
+        sound: ENTITY_WITHER_HURT
 
   warden:
     enabled: true
@@ -299,6 +381,19 @@ swords:
           mobs: true
         particle: SONIC_BOOM
         sound: ENTITY_WARDEN_HEARTBEAT
+      coneSlam:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        type: CONE_DAMAGE
+        cooldownSeconds: 20
+        radius: 6.0
+        damage: 5.0
+        angleDegrees: 80.0
+        targets:
+          players: true
+          mobs: true
+        particle: SONIC_BOOM
+        sound: ENTITY_WARDEN_ATTACK_IMPACT
 
   herobrine:
     enabled: true
@@ -331,3 +426,29 @@ swords:
           mobs: true
         particle: SMOKE_NORMAL
         sound: ENTITY_ENDERMAN_SCREAM
+      chainLightning:
+        enabled: true
+        trigger: SHIFT_RIGHT_CLICK
+        type: CHAIN_LIGHTNING
+        cooldownSeconds: 26
+        range: 14.0
+        chains: 4
+        chainRadius: 7.0
+        damage: 4.0
+        targets:
+          players: true
+          mobs: true
+        sound: ENTITY_LIGHTNING_BOLT_THUNDER
+      darkColumn:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: VFX_COLUMN
+        cooldownSeconds: 10
+        durationTicks: 30
+        height: 5.0
+        radius: 0.8
+        points: 18
+        particle: DUST
+        color: "#5500FF"
+        size: 1.6
+        sound: ENTITY_ENDERMAN_AMBIENT

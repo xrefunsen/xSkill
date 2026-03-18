@@ -86,9 +86,11 @@ public final class XSkillCommand implements CommandExecutor, TabCompleter {
                 amount = 1;
             }
         }
-        var item = SwordItems.create(def);
-        item.setAmount(amount);
-        target.getInventory().addItem(item);
+        for (int i = 0; i < amount; i++) {
+            var item = SwordItems.create(def);
+            item.setAmount(1);
+            target.getInventory().addItem(item);
+        }
         sender.sendMessage(Text.color("&aVerildi: &f" + swordId + " &7x" + amount));
         return true;
     }

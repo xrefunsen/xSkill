@@ -20,13 +20,16 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class XSkillListener implements Listener {
     private final XSkillPlugin plugin;
     private final Map<UUID, Long> lastFrozenBarMs = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> combatTagUntilMs = new ConcurrentHashMap<>();
 
     public XSkillListener(XSkillPlugin plugin) {
         this.plugin = plugin;
@@ -37,6 +40,8 @@ public final class XSkillListener implements Listener {
         if (e.getHand() != EquipmentSlot.HAND) return;
         Player p = e.getPlayer();
         if (p.getGameMode() == GameMode.SPECTATOR) return;
+        if (isWorldDisabled(p)) return;
+        if (isCombatBlocked(p)) return;
         Action a = e.getAction();
         boolean rightClick = a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK;
         if (!rightClick) return;
@@ -71,6 +76,9 @@ public final class XSkillListener implements Listener {
             e.setDamage(Math.max(0.0, e.getDamage() + def.damageBonus()));
         }
 
+        tagCombat(p);
+        if (e.getEntity() instanceof Player victim) tagCombat(victim);
+
         double xp = plugin.getConfig().getDouble("leveling.sources.hit", 1.0);
         plugin.levels().addXp(p, xp);
 
@@ -97,6 +105,7 @@ public final class XSkillListener implements Listener {
     public void onKill(EntityDeathEvent e) {
         Player killer = e.getEntity().getKiller();
         if (killer == null) return;
+        tagCombat(killer);
         ItemStack item = killer.getInventory().getItemInMainHand();
         String swordId = SwordItems.getSwordId(item);
         if (swordId == null) return;
@@ -119,6 +128,39 @@ public final class XSkillListener implements Listener {
             lastFrozenBarMs.put(p.getUniqueId(), now);
             p.sendActionBar(Text.component("&f&lDonduruldun!"));
         }
+    }
+
+    private boolean isWorldDisabled(Player p) {
+        var sec = plugin.getConfig().getConfigurationSection("swords.settings");
+        if (sec == null) return false;
+        Set<String> disabled = new HashSet<>(sec.getStringList("disabledWorlds"));
+        if (disabled.isEmpty()) return false;
+        String w = p.getWorld().getName();
+        for (String s : disabled) {
+            if (s != null && s.equalsIgnoreCase(w)) return true;
+        }
+        return false;
+    }
+
+    private void tagCombat(Player p) {
+        var sec = plugin.getConfig().getConfigurationSection("swords.settings.combatTag");
+        if (sec == null) return;
+        if (!sec.getBoolean("enabled", false)) return;
+        int seconds = Math.max(1, sec.getInt("seconds", 10));
+        combatTagUntilMs.put(p.getUniqueId(), System.currentTimeMillis() + seconds * 1000L);
+    }
+
+    private boolean isCombatBlocked(Player p) {
+        var sec = plugin.getConfig().getConfigurationSection("swords.settings.combatTag");
+        if (sec == null) return false;
+        if (!sec.getBoolean("enabled", false)) return false;
+        long until = combatTagUntilMs.getOrDefault(p.getUniqueId(), 0L);
+        if (until <= System.currentTimeMillis()) return false;
+        if (sec.getBoolean("blockAbilitiesWhileTagged", false)) {
+            p.sendActionBar(Text.component("&cSavaşta kullanılamaz"));
+            return true;
+        }
+        return false;
     }
 }
 

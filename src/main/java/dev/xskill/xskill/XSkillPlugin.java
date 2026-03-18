@@ -2,6 +2,7 @@ package dev.xskill.xskill;
 
 import dev.xskill.xskill.commands.XSkillCommand;
 import dev.xskill.xskill.data.PlayerDataStore;
+import dev.xskill.xskill.placeholders.XSkillPlaceholders;
 import dev.xskill.xskill.services.CooldownService;
 import dev.xskill.xskill.services.FrozenService;
 import dev.xskill.xskill.services.LevelService;
@@ -34,6 +35,13 @@ public final class XSkillPlugin extends JavaPlugin {
             XSkillCommand handler = new XSkillCommand(this);
             cmd.setExecutor(handler);
             cmd.setTabCompleter(handler);
+        }
+
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            try {
+                new XSkillPlaceholders(this).register();
+            } catch (Exception ignored) {
+            }
         }
     }
 

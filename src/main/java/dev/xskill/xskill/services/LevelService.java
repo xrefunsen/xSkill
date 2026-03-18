@@ -63,6 +63,17 @@ public final class LevelService {
         return xpToNext(level);
     }
 
+    public double scale(Player player, String key, double base) {
+        int lvl = level(player);
+        double perLevel = plugin.getConfig().getDouble("leveling.scaling." + key + ".perLevel", 0.0);
+        double min = plugin.getConfig().getDouble("leveling.scaling." + key + ".min", Double.NEGATIVE_INFINITY);
+        double max = plugin.getConfig().getDouble("leveling.scaling." + key + ".max", Double.POSITIVE_INFINITY);
+        double v = base + perLevel * Math.max(0, lvl - 1);
+        if (v < min) v = min;
+        if (v > max) v = max;
+        return v;
+    }
+
     private double xpToNext(int level) {
         double base = plugin.getConfig().getDouble("leveling.xp.baseToNext", 100.0);
         double add = plugin.getConfig().getDouble("leveling.xp.perLevelAdd", 25.0);
