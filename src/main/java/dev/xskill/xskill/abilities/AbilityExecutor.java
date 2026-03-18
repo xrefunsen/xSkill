@@ -15,10 +15,12 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+import java.util.Locale;
 
 public final class AbilityExecutor {
     private AbilityExecutor() {
@@ -43,17 +45,27 @@ public final class AbilityExecutor {
         ConfigurationSection s = ability.section();
         int cooldownSeconds = Cfg.i(s, "cooldownSeconds", 0);
         boolean ok;
-        ok = switch (ability.id().toLowerCase()) {
-            case "webfreeze" -> webFreeze(plugin, player, s);
-            case "heal" -> heal(player, s);
-            case "regen" -> regen(player, s);
-            case "blink" -> blink(player, s);
-            case "speed" -> speed(player, s);
-            case "slam" -> slam(player, s);
-            case "aura" -> aura(player, s);
-            case "darkness" -> darkness(player, s);
-            case "lightning" -> lightning(player, s);
-            default -> false;
+        String type = Cfg.str(s, "type", "").trim().toUpperCase(Locale.ROOT);
+        ok = switch (type) {
+            case "AOE_FREEZE" -> webFreeze(plugin, player, s);
+            case "AOE_POTION" -> aoePotion(player, s);
+            case "SELF_POTION" -> selfPotion(player, s);
+            case "SELF_HEAL" -> heal(player, s);
+            case "BLINK" -> blink(player, s);
+            case "AOE_KNOCKUP" -> slam(player, s);
+            case "AOE_LIGHTNING" -> lightning(player, s);
+            default -> switch (ability.id().toLowerCase()) {
+                case "webfreeze" -> webFreeze(plugin, player, s);
+                case "heal" -> heal(player, s);
+                case "regen" -> regen(player, s);
+                case "blink" -> blink(player, s);
+                case "speed" -> speed(player, s);
+                case "slam" -> slam(player, s);
+                case "aura" -> aura(player, s);
+                case "darkness" -> darkness(player, s);
+                case "lightning" -> lightning(player, s);
+                default -> false;
+            };
         };
 
         if (!ok) return false;
@@ -68,6 +80,8 @@ public final class AbilityExecutor {
         int durationSeconds = Cfg.i(s, "durationSeconds", 3);
         boolean applySlow = Cfg.b(s, "applyPotionSlow", true);
         int slowAmp = Cfg.i(s, "slowAmplifier", 10);
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
         Sound sound = Cfg.sound(s, "sound", null);
         Particle particle = Cfg.particle(s, "particle", null);
         Material particleMat = Cfg.material(s, "particleData", Material.COBWEB);
@@ -80,11 +94,16 @@ public final class AbilityExecutor {
         List<Entity> nearby = player.getNearbyEntities(radius, radius, radius);
         boolean hit = false;
         for (Entity e : nearby) {
-            if (!(e instanceof Player target)) continue;
-            if (target.getUniqueId().equals(player.getUniqueId())) continue;
-            plugin.frozen().freeze(target.getUniqueId(), until);
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            if (le instanceof Player targetPlayer) {
+                plugin.frozen().freeze(targetPlayer.getUniqueId(), until);
+            }
             if (applySlow) {
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, durationSeconds * 20, slowAmp, true, true, true));
+                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, durationSeconds * 20, slowAmp, true, true, true));
             }
             hit = true;
         }
@@ -99,6 +118,45 @@ public final class AbilityExecutor {
             }
         }
         return hit;
+    }
+
+    private static boolean aoePotion(Player player, ConfigurationSection s) {
+        double radius = Cfg.d(s, "radius", 6.0);
+        int durationSeconds = Cfg.i(s, "durationSeconds", 4);
+        int amplifier = Cfg.i(s, "amplifier", 0);
+        boolean affectPlayers = Cfg.b(s, "targets.players", true);
+        boolean affectMobs = Cfg.b(s, "targets.mobs", true);
+        PotionEffectType type = Cfg.potion(s, "potion", null);
+        Sound sound = Cfg.sound(s, "sound", null);
+        Particle particle = Cfg.particle(s, "particle", null);
+        if (type == null) return false;
+        Location center = player.getLocation();
+        World world = center.getWorld();
+        if (world == null) return false;
+        boolean hit = false;
+        for (Entity e : player.getNearbyEntities(radius, radius, radius)) {
+            if (!(e instanceof LivingEntity le)) continue;
+            if (e instanceof ArmorStand) continue;
+            if (e.getUniqueId().equals(player.getUniqueId())) continue;
+            if (e instanceof Player && !affectPlayers) continue;
+            if (!(e instanceof Player) && !affectMobs) continue;
+            le.addPotionEffect(new PotionEffect(type, durationSeconds * 20, amplifier, true, true, true));
+            hit = true;
+        }
+        if (sound != null) world.playSound(center, sound, 1.0f, 1.0f);
+        if (particle != null) world.spawnParticle(particle, center, 40, radius / 3.0, 0.8, radius / 3.0, 0.02);
+        return hit;
+    }
+
+    private static boolean selfPotion(Player player, ConfigurationSection s) {
+        int durationSeconds = Cfg.i(s, "durationSeconds", 6);
+        int amplifier = Cfg.i(s, "amplifier", 0);
+        PotionEffectType type = Cfg.potion(s, "potion", null);
+        Sound sound = Cfg.sound(s, "sound", null);
+        if (type == null) return false;
+        player.addPotionEffect(new PotionEffect(type, durationSeconds * 20, amplifier, true, true, true));
+        if (sound != null) player.getWorld().playSound(player.getLocation(), sound, 1.0f, 1.0f);
+        return true;
     }
 
     private static boolean heal(Player player, ConfigurationSection s) {

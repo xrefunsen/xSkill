@@ -25,14 +25,32 @@ swords:
       webFreeze:
         enabled: true
         trigger: SHIFT_RIGHT_CLICK
+        type: AOE_FREEZE
         cooldownSeconds: 20
         durationSeconds: 3
         radius: 6.0
         applyPotionSlow: true
         slowAmplifier: 10
+        targets:
+          players: true
+          mobs: true
         particle: BLOCK_CRACK
         particleData: COBWEB
         sound: BLOCK_WEB_PLACE
+      poisonBurst:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: AOE_POTION
+        cooldownSeconds: 18
+        radius: 5.5
+        durationSeconds: 4
+        potion: POISON
+        amplifier: 0
+        targets:
+          players: true
+          mobs: true
+        particle: SPELL_MOB
+        sound: ENTITY_SPIDER_AMBIENT
 
   deadpool:
     enabled: true
@@ -46,9 +64,19 @@ swords:
       heal:
         enabled: true
         trigger: SHIFT_RIGHT_CLICK
+        type: SELF_HEAL
         cooldownSeconds: 25
         healHearts: 6.0
         sound: ENTITY_PLAYER_LEVELUP
+      adrenaline:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: SELF_POTION
+        cooldownSeconds: 22
+        durationSeconds: 6
+        potion: SPEED
+        amplifier: 1
+        sound: ENTITY_PLAYER_BREATH
 
   wolverine:
     enabled: true
@@ -66,6 +94,15 @@ swords:
         durationSeconds: 6
         amplifier: 1
         sound: ENTITY_IRON_GOLEM_REPAIR
+      rage:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: SELF_POTION
+        cooldownSeconds: 24
+        durationSeconds: 7
+        potion: INCREASE_DAMAGE
+        amplifier: 0
+        sound: ENTITY_WOLF_GROWL
 
   loki:
     enabled: true
@@ -79,9 +116,19 @@ swords:
       blink:
         enabled: true
         trigger: SHIFT_RIGHT_CLICK
+        type: BLINK
         cooldownSeconds: 18
         maxDistance: 10.0
         sound: ENTITY_ENDERMAN_TELEPORT
+      vanish:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: SELF_POTION
+        cooldownSeconds: 26
+        durationSeconds: 7
+        potion: INVISIBILITY
+        amplifier: 0
+        sound: ENTITY_ILLUSIONER_MIRROR_MOVE
 
   nyan_cat:
     enabled: true
@@ -99,6 +146,15 @@ swords:
         durationSeconds: 8
         amplifier: 1
         sound: ENTITY_CAT_PURR
+      jump:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: SELF_POTION
+        cooldownSeconds: 20
+        durationSeconds: 7
+        potion: JUMP
+        amplifier: 1
+        sound: ENTITY_CAT_AMBIENT
 
   garfield:
     enabled: true
@@ -140,10 +196,20 @@ swords:
       slam:
         enabled: true
         trigger: SHIFT_RIGHT_CLICK
+        type: AOE_KNOCKUP
         cooldownSeconds: 22
         radius: 5.0
         knockUp: 0.6
         sound: ENTITY_IRON_GOLEM_ATTACK
+      fortify:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: SELF_POTION
+        cooldownSeconds: 30
+        durationSeconds: 8
+        potion: DAMAGE_RESISTANCE
+        amplifier: 0
+        sound: ENTITY_IRON_GOLEM_REPAIR
 
   wither:
     enabled: true
@@ -162,6 +228,20 @@ swords:
         radius: 5.0
         amplifier: 1
         sound: ENTITY_WITHER_SPAWN
+      weaknessCloud:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: AOE_POTION
+        cooldownSeconds: 24
+        radius: 6.0
+        durationSeconds: 6
+        potion: WEAKNESS
+        amplifier: 0
+        targets:
+          players: true
+          mobs: true
+        particle: SMOKE_LARGE
+        sound: ENTITY_WITHER_AMBIENT
 
   warden:
     enabled: true
@@ -179,6 +259,20 @@ swords:
         durationSeconds: 4
         radius: 6.0
         sound: ENTITY_WARDEN_SONIC_BOOM
+      slowPulse:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: AOE_POTION
+        cooldownSeconds: 22
+        radius: 6.0
+        durationSeconds: 4
+        potion: SLOWNESS
+        amplifier: 2
+        targets:
+          players: true
+          mobs: true
+        particle: SONIC_BOOM
+        sound: ENTITY_WARDEN_HEARTBEAT
 
   herobrine:
     enabled: true
@@ -192,7 +286,22 @@ swords:
       lightning:
         enabled: true
         trigger: SHIFT_RIGHT_CLICK
+        type: AOE_LIGHTNING
         cooldownSeconds: 24
         radius: 8.0
         strikes: 2
         sound: ENTITY_LIGHTNING_BOLT_THUNDER
+      blindness:
+        enabled: true
+        trigger: RIGHT_CLICK
+        type: AOE_POTION
+        cooldownSeconds: 24
+        radius: 6.0
+        durationSeconds: 5
+        potion: BLINDNESS
+        amplifier: 0
+        targets:
+          players: true
+          mobs: true
+        particle: SMOKE_NORMAL
+        sound: ENTITY_ENDERMAN_SCREAM
