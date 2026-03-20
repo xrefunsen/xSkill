@@ -1,0 +1,54 @@
+xSkill Custom License
+Version 1.0 — March 2026
+
+Copyright (c) 2026 xSkill authors and contributors. All rights reserved.
+
+1. Definitions
+   "Software" means the xSkill source code, build artifacts (including but not
+   limited to JAR files), documentation, and related assets in this repository.
+   "Licensor" means the copyright holder(s) named above.
+
+2. Grant of limited use (binary)
+   You may download and run the official, unmodified compiled plugin (JAR)
+   produced from this project on Minecraft servers (private or public) for
+   your own use, subject to the restrictions below.
+
+3. Restrictions
+   You may NOT, without prior written permission from the Licensor:
+   (a) Sell, sublicense, or commercially redistribute the Software or a
+       derivative work as a standalone product whose primary value is the
+       Software itself;
+   (b) Remove or alter proprietary notices, license files, or authorship
+       information shipped with the Software;
+   (c) Represent a modified fork as the official xSkill distribution.
+
+   Source code is provided for transparency and contribution under section 5.
+   Forking for private study is allowed; public redistribution of modified
+   source or binaries that compete with or replace the official release
+   requires explicit written consent.
+
+4. No warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+5. Contributions
+   If you submit patches, pull requests, or other contributions to this
+   repository, you grant the Licensor a perpetual, worldwide, non-exclusive,
+   royalty-free license to use, merge, and distribute those contributions as
+   part of the Software under this license, unless you explicitly state
+   otherwise in writing with your submission.
+
+6. Trademarks
+   The name "xSkill" and associated branding are not licensed except as
+   required to describe compatibility. Do not imply endorsement without
+   permission.
+
+7. Changes to this license
+   The Licensor may publish updated versions of this license. Continued use of
+   the Software after changes are posted to the repository constitutes acceptance
+   of the updated terms for subsequent distributions.
+
+For licensing questions, contact the repository owner via the GitHub project.

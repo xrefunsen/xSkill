@@ -174,12 +174,17 @@ mvn -DskipTests package
 
 ---
 
-## Katkı & lisans | Contributing & license
+## Katkı & özel lisans | Contributing & custom license
 
-| | 🇹🇷 | 🇬🇧 |
+| | 🇹🇷 Türkçe | 🇬🇧 English |
 | :--- | :--- | :--- |
-| Depo | Bu projeyi fork’layıp PR açabilirsiniz | Fork and open **PRs** as needed |
-| Lisans | Depo sahibinin belirttiği lisans geçerlidir (repo’da yoksa ekleyin) | Add a **LICENSE** file if not present |
+| **Lisans dosyası** | Tüm haklar ve koşullar için depodaki **[`LICENSE`](LICENSE)** dosyasına bakın (**xSkill Custom License v1.0**). | See **[`LICENSE`](LICENSE)** in this repo (**xSkill Custom License v1.0**). |
+| **Özet** | Derlenmiş **resmi JAR**’ı sunucunuzda çalıştırabilirsiniz; kaynak şeffaflık ve katkı içindir. Ticari yeniden satış, resmi dağıtımı taklit eden fork veya izinsiz yeniden dağıtım **yasaktır**. Katkılar (PR) birleştirme ve dağıtım için projeye lisans verir. | You may run the **official built JAR** on your server; source is for transparency and contributions. **No** commercial resale as a standalone product, **no** misleading forks as “official”, **no** redistribution without permission. **PRs** grant the project rights to merge and ship your changes. |
+| **Katkı** | İyileştirme önerileri ve PR’lar GitHub üzerinden; gönderdiğiniz içerik `LICENSE` §5 kapsamındadır. | Improvements and **pull requests** via GitHub; submissions are under **§5** of `LICENSE`. |
+| **Garanti** | Yazılım “olduğu gibi” sunulur; garanti verilmez (ayrıntı `LICENSE` §4). | Provided **as-is**; no warranty (see **§4**). |
+
+> **Not:** Bu tablo hukuki özet niteliğindedir; anlaşmazlıkta bağlayıcı metin İngilizce **`LICENSE`** dosyasıdır.  
+> **Note:** This table is a summary; the binding text is the English **`LICENSE`** file.
 
 ---
 
