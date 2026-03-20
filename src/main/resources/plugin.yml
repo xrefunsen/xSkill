@@ -4,16 +4,19 @@ main: dev.xskill.xskill.XSkillPlugin
 api-version: "1.21"
 commands:
   xskill:
-    usage: "/xskill <give|reload|stats|level>"
-    description: "xSkill commands"
+    usage: "/xskill <give|set|reload|stats|level>"
+    description: "xSkill: definitions on any held item, stats, reload"
 permissions:
   xskill.admin:
     default: op
     children:
       xskill.give: true
+      xskill.set: true
       xskill.reload: true
       xskill.stats.others: true
   xskill.give:
+    default: op
+  xskill.set:
     default: op
   xskill.reload:
     default: op

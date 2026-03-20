@@ -33,7 +33,7 @@ public final class AbilityExecutor {
         if (!ability.enabled()) return false;
         if (!sword.enabled()) return false;
         if (plugin.levels().level(player) < sword.minLevel()) {
-            player.sendMessage(Text.color("&cSeviyen yetmiyor. Gerekli: " + sword.minLevel()));
+            player.sendMessage(Text.color("&cLevel too low. Required: " + sword.minLevel()));
             return false;
         }
 
@@ -249,7 +249,7 @@ public final class AbilityExecutor {
 
     private static boolean vfxCastbar(XSkillPlugin plugin, Player player, ConfigurationSection s) {
         int durationTicks = Math.max(1, Cfg.i(s, "durationTicks", 30));
-        String title = Cfg.str(s, "title", "&6Yetenek");
+        String title = Cfg.str(s, "title", "&6Ability");
         String fill = Cfg.str(s, "fill", "&a■");
         String empty = Cfg.str(s, "empty", "&7■");
         int width = Math.max(5, Cfg.i(s, "width", 20));

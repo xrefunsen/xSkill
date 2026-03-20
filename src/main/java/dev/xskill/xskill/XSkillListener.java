@@ -126,7 +126,7 @@ public final class XSkillListener implements Listener {
         long last = lastFrozenBarMs.getOrDefault(p.getUniqueId(), 0L);
         if (now - last >= 900L) {
             lastFrozenBarMs.put(p.getUniqueId(), now);
-            p.sendActionBar(Text.component("&f&lDonduruldun!"));
+            p.sendActionBar(Text.component("&f&lFrozen!"));
         }
     }
 
@@ -157,7 +157,7 @@ public final class XSkillListener implements Listener {
         long until = combatTagUntilMs.getOrDefault(p.getUniqueId(), 0L);
         if (until <= System.currentTimeMillis()) return false;
         if (sec.getBoolean("blockAbilitiesWhileTagged", false)) {
-            p.sendActionBar(Text.component("&cSavaşta kullanılamaz"));
+            p.sendActionBar(Text.component("&cCannot use while in combat"));
             return true;
         }
         return false;
